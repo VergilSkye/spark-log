@@ -28,28 +28,21 @@ object NormalizeLogs {
 
     val vectorParams = sc.textFile(s"./in/$path/vector-params/part-*").map(e => mapUrls(e))
     val l = vectorParams.collect().map(e=>e.toArray).transpose
-    l.foreach(a=>a.mkString(","))
+    val vector = sc.parallelize(l)
+    val a = vector.map(e=> {
+      val a = ( e.sum, e.length)
+      val mean = e.sum/e.length
+      var top = 0.0;
+      for(ele <-e) {
+        top += Math.pow(ele-mean, 2)
+      }
+
+      val variance = top/e.length
+      (a._1, a._2, Math.sqrt(variance));
+    })
+    a.collect().foreach(println)
 
 
-
-
-//    val input = sc.textFile(s"./in/$path/filter-urls/part-*")
-//    val logs = input.map(line => NginxLineParser.parse(line))
-//    val filterData = logs.flatMap(e => if (e.isDefined) Some(generateArrayValues(e.get, bKnowUlrs)) else None)
-//
-//    val info = filterData.groupBy(e => e.ip)
-//      .map(e => listaDeObjectos(e._2.toList))
-//      .map(e => generateVector(e,knowUrls.size ))
-//      .map(e=>outputFormat(e))
-//
-//    info.coalesce(1,true).saveAsTextFile(s"./in/$path/vector-params")
-
-    //
-    //    val ipUrls: RDD[(String, String)] = logs.flatMap(e => if (e.isDefined) Some((e.get.remoteAddr, e.get.request.URL)) else None)
-    //    val uniqueIps = urls.distinct
-    //
-    //
-    //
 
     sc.stop()
   }
