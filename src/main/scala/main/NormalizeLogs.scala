@@ -11,12 +11,32 @@ import scala.collection.breakOut
 
 
 object NormalizeLogs {
-  def mapUrls(e: String): List[Double] = {
-    val b = e.split("\\|")(0).split(";",2)
-    val l1:List[Double] = b(1).split(";").map(e=>e.toDouble)(breakOut)
-    val l2: List[Double] = e.split("\\|")(1).split(";").map(e=>e.toDouble)(breakOut)
+  def mapUrls(e: String): (String, List[Double]) = {
+    val split = e.split(";",2)
+    val list: List[Double] = split(1)
+      .split((";"))
+      .map(e=>e.toDouble)(breakOut)
 
-    l1++l2
+    (split(0), list)
+
+  }
+
+  def normalize(e: (String, List[Double]), g: Array[(Double, Int, Double)]): (String, List[Double]) = {
+    val norms = e._2.zipWithIndex.map(a => {
+      val index = a._2
+
+      val sum=g(index)._1
+      val total=g(index)._2
+      val variance=g(index)._3
+
+      if(total==0 || variance==0.0) {
+         0.0
+      } else {
+        Math.abs(a._1-(sum/total))/variance
+      }
+    })
+
+    (e._1, norms)
   }
 
   def main(args: Array[String]) {
@@ -27,9 +47,9 @@ object NormalizeLogs {
 
 
     val vectorParams = sc.textFile(s"./in/$path/vector-params/part-*").map(e => mapUrls(e))
-    val l = vectorParams.collect().map(e=>e.toArray).transpose
+    val l = vectorParams.collect().map(e=>e._2.toArray).transpose
     val vector = sc.parallelize(l)
-    val a = vector.map(e=> {
+    val norm = vector.map(e=> {
       val a = ( e.sum, e.length)
       val mean = e.sum/e.length
       var top = 0.0;
@@ -40,8 +60,11 @@ object NormalizeLogs {
       val variance = top/e.length
       (a._1, a._2, Math.sqrt(variance));
     })
-    a.collect().foreach(println)
+    norm.map(e=> s"${e._1};${e._2};${e._3}").coalesce(1,true).saveAsTextFile(s"./in/$path/norm")
 
+    val g = norm.collect()
+    val normVector = vectorParams.map(e=>normalize(e,g))
+    normVector.map(e=> s"${e._1};${e._2.mkString(";")}").coalesce(1,true).saveAsTextFile(s"./in/$path/vector-norm")
 
 
     sc.stop()

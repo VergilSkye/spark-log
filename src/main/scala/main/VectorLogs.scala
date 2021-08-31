@@ -156,7 +156,7 @@ object VectorLogs {
       s"${e.ss_time};${e.ss_media};${e.ss_qtd};" +
       s"${e.c100};${e.c200};${e.c300};${e.c400};${e.c500};" +
       s"${e.ttl_bytes};" +
-      s"${e.get};${e.put};${e.post};${e.del}|"+
+      s"${e.get};${e.put};${e.post};${e.del};"+
       s"${e.columnsUrls}"
   }
 

@@ -10,6 +10,8 @@ idePackagePrefix := Some("dev.vergil")
 
 // https://mvnrepository.com/artifact/org.apache.spark/spark-core
 libraryDependencies += "org.apache.spark" %% "spark-core" % sparkVersion
+libraryDependencies += "org.apache.spark" %% "spark-sql"  % sparkVersion
+libraryDependencies += "org.apache.spark" %% "spark-mllib" % sparkVersion
 // https://mvnrepository.com/artifact/log4j/log4j
 libraryDependencies += "log4j" % "log4j" % "1.2.17"
 
