@@ -6,6 +6,7 @@ import util._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.{SparkConf, SparkContext}
 
+import java.io.PrintWriter
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneId}
@@ -53,8 +54,6 @@ object VectorLogs {
       bytes += w.bytes
     })
     ListFilterObject(ip, epochs.toList, httpVerbs.toList, prunes.toList, status.toList, bytes.toList);
-
-
   }
 
   def tbmnaosei(sorted: List[String]) = {
@@ -161,6 +160,7 @@ object VectorLogs {
   }
 
   def main(args: Array[String]) {
+    val t1 = System.nanoTime
     val path = if (args.isEmpty) "mini" else "big"
     utilities.setupLogging()
     val conf = new SparkConf().setAppName("VectorLogs").setMaster("local[*]")
@@ -190,6 +190,13 @@ object VectorLogs {
     //
 
     sc.stop()
+    val duration = (System.nanoTime - t1) / 1e9d
+    println(s"essa foi a duração: $duration")
+
+    new PrintWriter(s"./in/${path}/duration-VectorLogs.txt") {
+      write(s"duration: $duration");
+      close()
+    }
   }
 
 

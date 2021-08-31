@@ -7,6 +7,7 @@ import util.{NginxLineParser, utilities}
 import org.apache.spark
 import org.apache.spark.{SparkConf, SparkContext}
 
+import java.io.PrintWriter
 import scala.collection.breakOut
 
 
@@ -40,6 +41,7 @@ object NormalizeLogs {
   }
 
   def main(args: Array[String]) {
+    val t1 = System.nanoTime
     val path = if (args.isEmpty) "mini" else "big"
     utilities.setupLogging()
     val conf = new SparkConf().setAppName("NormalizeLog").setMaster("local[*]")
@@ -66,7 +68,13 @@ object NormalizeLogs {
     val normVector = vectorParams.map(e=>normalize(e,g))
     normVector.map(e=> s"${e._1};${e._2.mkString(";")}").coalesce(1,true).saveAsTextFile(s"./in/$path/vector-norm")
 
-
     sc.stop()
+    val duration = (System.nanoTime - t1) / 1e9d
+    println(s"essa foi a duração: $duration")
+
+    new PrintWriter(s"./in/${path}/duration-NormalizeLogs.txt") {
+      write(s"duration: $duration");
+      close()
+    }
   }
 }

@@ -5,6 +5,7 @@ import util.{NginxLineParser, utilities}
 
 import org.apache.spark.{SparkConf, SparkContext}
 
+import java.io.PrintWriter
 import java.util.regex.Pattern
 import scala.sys.process._
 
@@ -25,6 +26,11 @@ object KnowURLs {
 
     val duration = (System.nanoTime - t1) / 1e9d
     println(s"essa foi a duração: $duration")
+
+    new PrintWriter(s"./in/${path}/duration-KnowURLs.txt") {
+      write(s"duration: $duration");
+      close()
+    }
 
 
   }

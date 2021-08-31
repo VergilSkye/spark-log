@@ -31,6 +31,11 @@ object FilterRawLog {
 
     val duration = (System.nanoTime - t1) / 1e9d
     println(s"essa foi a duração: $duration")
+
+    new PrintWriter(s"./in/${path}/duration-FilterRawLog.txt") {
+      write(s"duration: $duration");
+      close()
+    }
   }
 
   def urlFromHumans(url: String): Boolean = {
