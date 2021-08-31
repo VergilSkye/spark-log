@@ -8,7 +8,7 @@ package util
 case class NginxLogRecord(
                            remoteAddr: String, // should be an ip address, but may also be the hostname if hostname-lookups are enabled
                            remoteUser: String, // typically '-'
-                           timeLocal: String, // [day/month/year:hour:minute:second zone]
+                           timeLocal: String, // day/month/year:hour:minute:second zone
                            request: Request,
                            status: String, // HTTP Status,
                            receivedBytes: String, // Bytes received in the response

@@ -11,15 +11,15 @@ object FilterRawLog {
   def main(args: Array[String]): Unit = {
     val t1 = System.nanoTime
     utilities.setupLogging()
-    val path = if (args.isEmpty) "big" else "big"
+    val path = if (args.isEmpty) "mini" else "big"
     val conf = new SparkConf().setAppName("FilterRawLog").setMaster("local[*]")
     val sc = new SparkContext(conf)
 
     val input = sc.textFile(s"./in/$path/access.log")
     val logs = input.filter(urlFromHumans)
-      .filter(e => wantedWords(e, List("/product/")))
+      .filter(e => wantedWords(e, List("product")))
 //      .filter(excludeExtensions)
-      .filter(e => unwantedWords(e, "image,filter,search,rss".split(",").toList))
+      .filter(e => unwantedWords(e, "image,filter,search,rss,browse,site".split(",").toList))
 
 
     logs.saveAsTextFile(s"./in/$path/filter-urls")
@@ -45,11 +45,12 @@ object FilterRawLog {
   def wantedWords(url: String, wantedWords: List[String]): Boolean = {
     // https://alvinalexander.com/scala/how-to-extract-parts-strings-match-regular-expression-regex-scala/
     val NginxLineParser.regex(ip, client, datetime, req, status, bytes, referer, agent) = url
-    wantedWords exists req.contains
+    wantedWords exists req.toLowerCase.contains
   }
 
   def unwantedWords(url: String, unwantedWords: List[String]): Boolean = {
-    !(unwantedWords exists url.contains)
+    val NginxLineParser.regex(ip, client, datetime, req, status, bytes, referer, agent) = url
+    !(unwantedWords exists req.toLowerCase.contains)
   }
 
 

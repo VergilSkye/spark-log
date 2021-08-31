@@ -36,7 +36,7 @@ object NginxLineParser extends Serializable {
           NginxLogRecord(
             ip,
             client,
-            datetime,
+            datetime.replaceAll("\\[", "").replaceAll("\\]","").split("\\+")(0).replaceAll("\\s+","") ,
             if (requestTuple.isDefined) Request(requestTuple.get._1  , requestTuple.get._2 , requestTuple.get._3) else Request(),
             status,
             bytes,
